@@ -5,11 +5,11 @@ from django.db import models
 from django.template import Context
 from django.template import Template
 from os import environ as env
+import os
 
-import telebot
 
-
-telegram_template = """{{ service.name }} {% if service.overall_status == service.PASSING_STATUS %}OK{% else %}{{ service.overall_status }}{% endif %}: {{ scheme }}://{{ host }}{% url 'service' pk=service.id %}. {% if service.overall_status != service.PASSING_STATUS %}Checks failing: {% for check in service.all_failing_checks %}{% if check.check_category == 'Jenkins check' %}{% if check.last_result.error %}{{ check.name }} ({{ check.last_result.error|safe }}) {{jenkins_api}}job/{{ check.name }}/{{ check.last_result.job_number }}/console{% else %}{{ check.name }} {{jenkins_api}}/job/{{ check.name }}/{{check.last_result.job_number}}/console{% endif %}{% else %}{{ check.name }}{% if check.last_result.error %} ({{ check.last_result.error|safe }}){% endif %}{% endif %}{% endfor %}{% endif %}{% if alert %}{% for alias in users %}@{{ alias }}{% endfor %}{% endif %}"""
+extraInfo = env.get('TELEGRAM_BOT_EXTRA')
+telegram_template = """{{ {{ extraInfo }} {{ service.name }} {% if service.overall_status == service.PASSING_STATUS %}OK{% else %}{{ service.overall_status }}{% endif %}: {{ scheme }}://{{ host }}{% url 'service' pk=service.id %}. {% if service.overall_status != service.PASSING_STATUS %}Checks failing: {% for check in service.all_failing_checks %}{% if check.check_category == 'Jenkins check' %}{% if check.last_result.error %}{{ check.name }} ({{ check.last_result.error|safe }}) {{jenkins_api}}job/{{ check.name }}/{{ check.last_result.job_number }}/console{% else %}{{ check.name }} {{jenkins_api}}/job/{{ check.name }}/{{check.last_result.job_number}}/console{% endif %}{% else %}{{ check.name }}{% if check.last_result.error %} ({{ check.last_result.error|safe }}){% endif %}{% endif %}{% endfor %}{% endif %}{% if alert %}{% for alias in users %}@{{ alias }}{% endfor %}{% endif %}"""
 
 # This provides the telegram alias for each user.
 # Each object corresponds to a User
